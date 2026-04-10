@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_explore -> true
                 R.id.nav_memories -> {
-                    Toast.makeText(this, "Memories", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, MemoriesActivity::class.java))
                     true
                 }
                 R.id.nav_profile -> {
