@@ -13,34 +13,31 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="12dp"
         app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/btnClose"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            app:tint="#475569" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="sans-serif-black"
-            android:gravity="center"
             android:text="MapNote"
             android:textColor="#2962FF"
-            android:textSize="22sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_close"
+            app:tint="#475569" />
     </LinearLayout>
 
     <ScrollView
@@ -62,12 +59,20 @@
                 android:id="@+id/btnAddPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:background="@drawable/bg_dashed_border"
                 android:clickable="true"
                 android:focusable="true">
 
+                <ImageView
+                    android:id="@+id/ivSelectedImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+
                 <LinearLayout
+                    android:id="@+id/llAddPhotoPlaceholder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -127,7 +132,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="CURRENT LOCATION"
+                        android:text="IMAGE LOCATION"
                         android:textColor="#94A3B8"
                         android:textSize="10sp"
                         android:letterSpacing="0.05" />
@@ -137,7 +142,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="48.8584° N, 2.2945° E • Paris, FR"
+                        android:text="No location data"
                         android:textColor="#334155"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -180,7 +185,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-bold"
-                        android:text="Oct 24, 2023 • 05:32 PM"
+                        android:text="No date data"
                         android:textColor="#334155"
                         android:textSize="13sp" />
                 </LinearLayout>
