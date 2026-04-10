@@ -37,6 +37,9 @@
         <activity
             android:name=".AddMemoryActivity"
             android:exported="false" />
+        <activity
+            android:name=".MemoryDetailActivity"
+            android:exported="false" />
 
     </application>
 
