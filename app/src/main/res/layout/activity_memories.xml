@@ -32,12 +32,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_avatar_circle"
-                android:padding="2dp"
-                android:src="@drawable/ic_profile" />
+            <!-- Profile image removed from top right -->
         </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
