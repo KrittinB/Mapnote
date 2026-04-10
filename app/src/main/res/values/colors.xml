@@ -2,4 +2,35 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary Blue -->
+    <color name="primary">#2962FF</color>
+    <color name="primary_dark">#0039CB</color>
+    <color name="primary_light">#768FFF</color>
+
+    <!-- Background -->
+    <color name="bg_light">#F5F7FA</color>
+    <color name="bg_card">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <!-- Bottom Nav -->
+    <color name="nav_selected">#2962FF</color>
+    <color name="nav_unselected">#9E9E9E</color>
+    <color name="nav_background">#FFFFFF</color>
+
+    <!-- Map Controls -->
+    <color name="control_bg">#F0F0F0</color>
+    <color name="control_icon">#555555</color>
+
+    <!-- FAB -->
+    <color name="fab_bg">#2962FF</color>
+    <color name="fab_icon">#FFFFFF</color>
+
+    <!-- Marker -->
+    <color name="marker_label_bg">#FFFFFF</color>
+    <color name="marker_label_text">#1A1A2E</color>
+    <color name="marker_shadow">#33000000</color>
 </resources>

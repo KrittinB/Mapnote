@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,13 +7,155 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <!-- OSMDroid MapView - Full screen background -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top Bar Overlay (gradient fade) -->
+    <FrameLayout
+        android:id="@+id/topBarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/bg_top_bar" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingTop="44dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
+
+            <!-- App Title -->
+            <TextView
+                android:id="@+id/tvAppTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
+                android:text="Mapnote"
+                android:textColor="#1A1A2E"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <!-- Profile Avatar -->
+            <FrameLayout
+                android:id="@+id/btnProfile"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_profile_circle"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/ivProfileAvatar"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Profile"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile" />
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Right-side Controls: Zoom + / - and My Location -->
+    <LinearLayout
+        android:id="@+id/mapControlsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Zoom In -->
+        <ImageButton
+            android:id="@+id/btnZoomIn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_control_button"
+            android:contentDescription="@string/btn_zoom_in"
+            android:elevation="4dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_plus" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="8dp" />
+
+        <!-- Zoom Out -->
+        <ImageButton
+            android:id="@+id/btnZoomOut"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_control_button"
+            android:contentDescription="@string/btn_zoom_out"
+            android:elevation="4dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_minus" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="16dp" />
+
+        <!-- My Location -->
+        <ImageButton
+            android:id="@+id/btnMyLocation"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_location_button"
+            android:contentDescription="@string/btn_my_location"
+            android:elevation="4dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_my_location" />
+    </LinearLayout>
+
+    <!-- FAB - Add Note -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="88dp"
+        android:contentDescription="@string/btn_add_note"
+        app:backgroundTint="@color/fab_bg"
+        app:elevation="8dp"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_add_white"
+        app:tint="@null" />
+
+    <!-- Bottom Navigation Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <!-- Shadow above nav bar -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:background="@drawable/bg_bottom_nav_shadow" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/nav_background"
+            app:itemActiveIndicatorStyle="@null"
+            app:itemIconTint="@color/bottom_nav_colors"
+            app:itemTextColor="@color/bottom_nav_colors"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+    </LinearLayout>
+
+</FrameLayout>
