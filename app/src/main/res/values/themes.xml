@@ -5,9 +5,15 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/primary</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@color/nav_background</item>
+        <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <style name="Theme.Mapnote" parent="Base.Theme.Mapnote" />
+
+    <!-- FAB rounded style -->
+    <style name="FabRounded" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

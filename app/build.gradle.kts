@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.google.services)
+    // alias(libs.plugins.google.services) // เปิดใช้เมื่อเพิ่ม google-services.json แล้ว
 }
 
 android {
@@ -31,7 +31,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    // ย้าย kotlinOptions ออกไปชั่วคราวเพื่อตรวจสอบว่าอะไรสร้าง Extension ซ้ำ
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 dependencies {
@@ -41,13 +43,13 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.storage)
+    // Firebase - เปิดใช้เมื่อเพิ่ม google-services.json แล้ว
+    // implementation(platform(libs.firebase.bom))
+    // implementation(libs.firebase.auth)
+    // implementation(libs.firebase.firestore)
+    // implementation(libs.firebase.storage)
 
-    // Map Engine
+    // Map Engine (OSM)
     implementation(libs.osmdroid)
 
     testImplementation("junit:junit:4.13.2")

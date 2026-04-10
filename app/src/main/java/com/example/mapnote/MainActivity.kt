@@ -6,12 +6,8 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.view.Gravity
+import android.util.TypedValue
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -50,23 +46,43 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // Edge-to-edge insets
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, 0, 0, 0)
+        initViews()
 
-            // Adjust top bar padding for status bar
-            findViewById<FrameLayout>(R.id.topBarContainer)?.let { topBar ->
-                topBar.setPadding(0, systemBars.top, 0, 0)
+        // Edge-to-edge insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Adjust top bar for status bar and add balanced padding
+            findViewById<View>(R.id.topBarContainer)?.let { topBar ->
+                topBar.setPadding(
+                    dpToPx(24),
+                    systemBars.top + dpToPx(16),
+                    dpToPx(24),
+                    dpToPx(20)
+                )
             }
+
+            // Adjust bottom nav height and padding for nav bar
+            bottomNav.let { nav ->
+                val params = nav.layoutParams
+                params.height = dpToPx(60) + systemBars.bottom
+                nav.layoutParams = params
+                nav.setPadding(0, 0, 0, systemBars.bottom)
+            }
+
+            // Adjust FAB margin for nav bar
+            fabAddNote.let { fab ->
+                val params = fab.layoutParams as android.widget.FrameLayout.LayoutParams
+                params.bottomMargin = dpToPx(16) + dpToPx(60) + systemBars.bottom
+                fab.layoutParams = params
+            }
+
             insets
         }
 
-        initViews()
         setupMap()
         setupControls()
         setupBottomNavigation()
-        addSampleNoteMarkers()
         requestPermissionsIfNeeded()
     }
 
@@ -79,53 +95,46 @@ class MainActivity : AppCompatActivity() {
     private fun setupMap() {
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
-
-        // Disable default zoom controls (we have our own)
         mapView.setBuiltInZoomControls(false)
 
-        // Set initial position (world view like the mockup)
+        // Initial map: centered on Japan (like the mockup shows)
         val mapController = mapView.controller
-        mapController.setZoom(3.0)
-        mapController.setCenter(GeoPoint(30.0, 50.0)) // Centered to show world map nicely
+        mapController.setZoom(5.5)
+        mapController.setCenter(GeoPoint(36.0, 138.0))
     }
 
     private fun setupControls() {
-        // Zoom In
         findViewById<View>(R.id.btnZoomIn).setOnClickListener {
             mapView.controller.zoomIn()
         }
-
-        // Zoom Out
         findViewById<View>(R.id.btnZoomOut).setOnClickListener {
             mapView.controller.zoomOut()
         }
-
-        // My Location
         findViewById<View>(R.id.btnMyLocation).setOnClickListener {
             if (hasLocationPermission()) {
-                val locationManager = getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+                val locationManager =
+                    getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
                 try {
-                    val lastKnown = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
-                        ?: locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+                    val lastKnown =
+                        locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+                            ?: locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
                     if (lastKnown != null) {
-                        val geoPoint = GeoPoint(lastKnown.latitude, lastKnown.longitude)
-                        mapView.controller.animateTo(geoPoint)
+                        mapView.controller.animateTo(
+                            GeoPoint(lastKnown.latitude, lastKnown.longitude)
+                        )
                         mapView.controller.setZoom(15.0)
                     } else {
                         Toast.makeText(this, "ไม่พบตำแหน่งปัจจุบัน", Toast.LENGTH_SHORT).show()
                     }
-                } catch (e: SecurityException) {
+                } catch (_: SecurityException) {
                     Toast.makeText(this, "ไม่มีสิทธิ์เข้าถึงตำแหน่ง", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 requestPermissionsIfNeeded()
             }
         }
-
-        // FAB - Add Note
         fabAddNote.setOnClickListener {
             Toast.makeText(this, "เพิ่มโน้ตใหม่", Toast.LENGTH_SHORT).show()
-            // TODO: Open Add Note screen
         }
     }
 
@@ -133,18 +142,13 @@ class MainActivity : AppCompatActivity() {
         bottomNav.selectedItemId = R.id.nav_explore
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_explore -> {
-                    // Already on explore (map) screen
-                    true
-                }
+                R.id.nav_explore -> true
                 R.id.nav_memories -> {
                     Toast.makeText(this, "Memories", Toast.LENGTH_SHORT).show()
-                    // TODO: Navigate to Memories screen
                     true
                 }
                 R.id.nav_profile -> {
                     Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
-                    // TODO: Navigate to Profile screen
                     true
                 }
                 else -> false
@@ -153,112 +157,115 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Add sample note markers on the map to demonstrate the UI.
-     * Each marker has a thumbnail image and a label, similar to the mockup.
+     * Creates a beautiful custom marker matching the mockup:
+     * - Rounded thumbnail card with gradient + shadow
+     * - White pill label below with location name
+     * - Small triangle pointer at bottom
      */
-    private fun addSampleNoteMarkers() {
-        data class NotePin(val title: String, val lat: Double, val lon: Double, val color: Int)
+    private fun createBeautifulMarker(label: String, colors: Pair<Int, Int>): BitmapDrawable {
+        val density = resources.displayMetrics.density
 
-        val sampleNotes = listOf(
-            NotePin("KYOTO", 35.0116, 135.7681, Color.parseColor("#4CAF50")),
-            NotePin("SHIBUYA", 35.6580, 139.7016, Color.parseColor("#FF9800")),
-            NotePin("METROPOLIS", 6.5244, 3.3792, Color.parseColor("#9C27B0")),
-            NotePin("PARIS", 48.8566, 2.3522, Color.parseColor("#E91E63")),
-            NotePin("NEW YORK", 40.7128, -74.0060, Color.parseColor("#2196F3"))
-        )
+        // Sizes in pixels
+        val cardW = (80 * density).toInt()
+        val cardH = (70 * density).toInt()
+        val pillH = (24 * density).toInt()
+        val pointerH = (8 * density).toInt()
+        val padding = (8 * density).toInt()
+        val totalW = cardW + padding * 2
+        val totalH = cardH + pillH + pointerH + padding * 2
 
-        for (note in sampleNotes) {
-            val marker = Marker(mapView)
-            marker.position = GeoPoint(note.lat, note.lon)
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.title = note.title
-
-            // Create custom marker icon with thumbnail + label
-            val markerIcon = createNoteMarkerDrawable(note.title, note.color)
-            marker.icon = markerIcon
-
-            marker.setOnMarkerClickListener { m, _ ->
-                Toast.makeText(this, "📍 ${m.title}", Toast.LENGTH_SHORT).show()
-                true
-            }
-
-            mapView.overlays.add(marker)
-        }
-
-        mapView.invalidate()
-    }
-
-    /**
-     * Creates a custom drawable for a map marker that looks like the mockup:
-     * a rounded-rect thumbnail with a label underneath.
-     */
-    private fun createNoteMarkerDrawable(label: String, accentColor: Int): BitmapDrawable {
-        val width = 160
-        val height = 180
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(totalW, totalH, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        // -- Thumbnail card (rounded rect with shadow) --
-        val cardPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val cx = totalW / 2f
+
+        // === Card shadow ===
+        val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.TRANSPARENT
+            setShadowLayer(6 * density, 0f, 3 * density, Color.parseColor("#40000000"))
+        }
+        val cardLeft = padding.toFloat()
+        val cardTop = padding.toFloat()
+        val cardRight = (totalW - padding).toFloat()
+        val cardBottom = (padding + cardH).toFloat()
+        val cornerR = 14 * density
+        canvas.drawRoundRect(cardLeft, cardTop, cardRight, cardBottom, cornerR, cornerR, shadowPaint)
+
+        // === Card white border ===
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            setShadowLayer(6f, 0f, 3f, Color.parseColor("#33000000"))
         }
-        val cardRect = RectF(8f, 4f, (width - 8).toFloat(), 120f)
-        canvas.drawRoundRect(cardRect, 16f, 16f, cardPaint)
+        canvas.drawRoundRect(cardLeft, cardTop, cardRight, cardBottom, cornerR, cornerR, borderPaint)
 
-        // Inner image area (simulated with accent color)
-        val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = accentColor
-        }
-        val imageRect = RectF(16f, 12f, (width - 16).toFloat(), 112f)
-        canvas.drawRoundRect(imageRect, 12f, 12f, imagePaint)
+        // === Inner image with gradient ===
+        val inset = 4 * density
+        val imgRect = RectF(
+            cardLeft + inset, cardTop + inset,
+            cardRight - inset, cardBottom - inset
+        )
+        val imgCorner = 10 * density
 
-        // A subtle gradient overlay on the image
-        val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val gradPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             shader = LinearGradient(
-                0f, 60f, 0f, 112f,
-                Color.TRANSPARENT,
-                Color.parseColor("#66000000"),
+                imgRect.left, imgRect.top,
+                imgRect.right, imgRect.bottom,
+                colors.first, colors.second,
                 Shader.TileMode.CLAMP
             )
         }
-        canvas.drawRoundRect(imageRect, 12f, 12f, gradientPaint)
+        canvas.drawRoundRect(imgRect, imgCorner, imgCorner, gradPaint)
 
-        // Small title text inside image
-        val innerTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // === Subtle overlay on image ===
+        val overlayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                0f, imgRect.centerY(),
+                0f, imgRect.bottom,
+                Color.TRANSPARENT,
+                Color.parseColor("#55000000"),
+                Shader.TileMode.CLAMP
+            )
+        }
+        canvas.drawRoundRect(imgRect, imgCorner, imgCorner, overlayPaint)
+
+        // === Small text inside image ===
+        val innerText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            textSize = 18f
+            textSize = 10 * density
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             textAlign = Paint.Align.CENTER
+            setShadowLayer(2 * density, 0f, 1 * density, Color.parseColor("#66000000"))
         }
-        canvas.drawText(label, width / 2f, 100f, innerTextPaint)
+        canvas.drawText(label, cx, imgRect.bottom - 6 * density, innerText)
 
-        // -- Label pill below card --
-        val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            setShadowLayer(4f, 0f, 2f, Color.parseColor("#22000000"))
-        }
-        val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // === White pill label ===
+        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#1A1A2E")
-            textSize = 20f
+            textSize = 11 * density
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             textAlign = Paint.Align.CENTER
         }
-        val textWidth = textPaint.measureText(label)
-        val pillW = textWidth + 32f
-        val pillLeft = (width - pillW) / 2f
-        val pillRect = RectF(pillLeft, 126f, pillLeft + pillW, 164f)
-        canvas.drawRoundRect(pillRect, 18f, 18f, pillPaint)
-        canvas.drawText(label, width / 2f, 152f, textPaint)
+        val textW = labelPaint.measureText(label)
+        val pillPadH = 14 * density
+        val pillWidth = textW + pillPadH * 2
+        val pillLeft = cx - pillWidth / 2
+        val pillTop = cardBottom + 4 * density
+        val pillBottom = pillTop + pillH
+        val pillRect = RectF(pillLeft, pillTop, pillLeft + pillWidth, pillBottom)
 
-        // -- Small triangle pointer below pill --
-        val triPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val pillBg = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
+            setShadowLayer(3 * density, 0f, 1 * density, Color.parseColor("#22000000"))
         }
+        canvas.drawRoundRect(pillRect, pillH / 2f, pillH / 2f, pillBg)
+        canvas.drawText(label, cx, pillBottom - 7 * density, labelPaint)
+
+        // === Small pointer triangle ===
+        val triPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+        val triSize = 5 * density
         val path = android.graphics.Path().apply {
-            moveTo(width / 2f - 8f, 162f)
-            lineTo(width / 2f, 174f)
-            lineTo(width / 2f + 8f, 162f)
+            moveTo(cx - triSize, pillBottom - 1)
+            lineTo(cx, pillBottom + pointerH - 2 * density)
+            lineTo(cx + triSize, pillBottom - 1)
             close()
         }
         canvas.drawPath(path, triPaint)
@@ -266,7 +273,9 @@ class MainActivity : AppCompatActivity() {
         return BitmapDrawable(resources, bitmap)
     }
 
-    // -- Permissions --
+    // =====================
+    // Permissions
+    // =====================
 
     private fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -300,7 +309,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // -- Lifecycle --
+    // =====================
+    // Lifecycle
+    // =====================
 
     override fun onResume() {
         super.onResume()
@@ -310,5 +321,17 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+    }
+
+    // =====================
+    // Utilities
+    // =====================
+
+    private fun dpToPx(dp: Int): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp.toFloat(),
+            resources.displayMetrics
+        ).toInt()
     }
 }
