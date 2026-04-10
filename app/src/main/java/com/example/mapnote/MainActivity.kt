@@ -2,6 +2,7 @@ package com.example.mapnote
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
@@ -145,6 +146,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_explore -> true
                 R.id.nav_memories -> {
                     startActivity(Intent(this, MemoriesActivity::class.java))
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                     true
                 }
                 R.id.nav_profile -> {
