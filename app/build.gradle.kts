@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // alias(libs.plugins.google.services) // เปิดใช้เมื่อเพิ่ม google-services.json แล้ว
 }
 
 android {
@@ -42,12 +41,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-
-    // Firebase - เปิดใช้เมื่อเพิ่ม google-services.json แล้ว
-    // implementation(platform(libs.firebase.bom))
-    // implementation(libs.firebase.auth)
-    // implementation(libs.firebase.firestore)
-    // implementation(libs.firebase.storage)
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Map Engine (OSM)
     implementation(libs.osmdroid)
