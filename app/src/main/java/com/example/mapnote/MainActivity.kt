@@ -85,6 +85,12 @@ class MainActivity : AppCompatActivity() {
         setupControls()
         setupBottomNavigation()
         requestPermissionsIfNeeded()
+        
+        // Profile button in top bar
+        findViewById<View>(R.id.btnProfile).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
     }
 
     private fun initViews() {
@@ -135,7 +141,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
         fabAddNote.setOnClickListener {
-            Toast.makeText(this, "เพิ่มโน้ตใหม่", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AddMemoryActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 
@@ -146,11 +154,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_explore -> true
                 R.id.nav_memories -> {
                     startActivity(Intent(this, MemoriesActivity::class.java))
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     true
                 }
                 R.id.nav_profile -> {
-                    Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     true
                 }
                 else -> false
@@ -318,6 +327,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+        bottomNav.selectedItemId = R.id.nav_explore
     }
 
     override fun onPause() {
